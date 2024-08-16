@@ -1,0 +1,116 @@
+﻿@model IEnumerable<DefenceSimulator3.Models.Threat>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>ניהול איומים</h1>
+
+<p>
+    <a asp-action="Create">הוסף איום חדש</a>
+</p>
+
+<!-- Rocket element -->
+<div id="rocket" style="display: none; z-index: 9999; position: fixed;">
+    <img src="path_to_rocket_image.png" alt="Rocket" style="width: 50px; height: 50px;" />
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.OriginId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Amount)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WeaponId)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Origin.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Amount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Weapon.Name)
+            </td>
+            <td>
+                @{
+                    string ActionName = item.Status == Enums.ThreatStatus.בהמתנה ? "StartAttack" : "";
+                    string BtnText = item.Status == Enums.ThreatStatus.בהמתנה ? "Launch" : "";
+                    string ClassName = "btn btn-danger launch-btn";
+                    string type = item.Status == Enums.ThreatStatus.בהמתנה ? "submit" : "hidden";
+                }
+                <form asp-action="@ActionName" asp-route-threatId="@item.ThreatId" class="launch-form">
+                    <input type="@type" value="@BtnText" class="@ClassName" />
+                </form>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Get all launch buttons
+            var launchButtons = document.querySelectorAll(".launch-btn");
+
+            launchButtons.forEach(function (btn) {
+                btn.addEventListener("click", function (event) {
+                    // Show the rocket and start the animation
+                    var rocket = document.getElementById("rocket");
+                    rocket.style.display = "block";
+                    rocket.classList.add("fly");
+
+                    // Remove the rocket after the animation ends
+                    setTimeout(function () {
+                        rocket.style.display = "none";
+                        rocket.classList.remove("fly");
+                    }, 15000); // Match this time with your CSS animation duration
+                });
+            });
+        });
+    </script>
+
+    <style>
+        /* Initial position and style of the rocket */
+        #rocket {
+            position: fixed;
+            top: 50px;
+            left: -100px; /* Start off the screen */
+            width: 50px;
+            height: 50px;
+        }
+
+        /* Flying animation */
+        .fly {
+            animation: flyAcross 15s linear forwards;
+        }
+
+        keyframes flyAcross {
+            from {
+                left: -100px;
+                top: 50px;
+            }
+            to {
+                left: 100%;
+                top: 150px; /* Adjust to your desired path */
+            }
+        }
+    </style>
+}

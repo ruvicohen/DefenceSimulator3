@@ -1,0 +1,93 @@
+﻿@{
+    ViewData["Title"] = "Privacy Policy";
+}
+<h1>@ViewData["Title"]</h1>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>בחר מוצא ויעד</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 400px;
+            width: 50%;
+        }
+    </style>
+</head>
+<body dir="rtl">
+    <h3>בחר מוצא ויעד במפה:</h3>
+    <div id="map"></div>
+    <div style="height: 400px; width: 50%; border: 4px solid;"></div>
+    <input type="text" id="source-latitude" readonly>
+    <input type="text" id="source-longitude" readonly>
+    <input type="text" id="target-latitude" readonly>
+    <input type="text" id="target-longitude" readonly>
+    <label id="source_dispaly"></label>
+    <label id="target_display"></label>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([31.0461, 34.8516], 8); // ישראל
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        var source_display, target_display;
+        var clickCount = 0;
+        var sourceMarker, targetMarker;
+        var line;
+
+        source_display = document.getElementById("source_dispaly")
+        target_display = document.getElementById("target_display")
+
+        async function onMapClick(e) {
+            clickCount++;
+
+            var lat = e.latlng.lat;
+            var lng = e.latlng.lng;
+
+            if (clickCount % 2 === 1) {
+                document.getElementById('source-latitude').value = lat;
+                document.getElementById('source-longitude').value = lng;
+
+                source_display.innerHTML = await details(lat, lng);
+                console.log(source_display);
+
+
+                // הוספת סמן (Marker) לנקודת המוצא
+                if (sourceMarker) {
+                    map.removeLayer(sourceMarker);
+                }
+                sourceMarker = L.marker([lat, lng]).addTo(map).bindPopup("מוצא").openPopup();
+
+            } else if (clickCount % 2 === 0) {
+                document.getElementById('target-latitude').value = lat;
+                document.getElementById('target-longitude').value = lng;
+
+                target_display.innerHTML = await details(lat, lng);
+
+                // הוספת סמן (Marker) לנקודת היעד
+                if (targetMarker) {
+                    map.removeLayer(targetMarker);
+                }
+                targetMarker = L.marker([lat, lng]).addTo(map).bindPopup("יעד").openPopup();
+                if (line) {
+                    map.removeLayer(line);
+                }
+                // ציור קו בין הנקודות
+                line = L.polyline([
+                    [sourceMarker.getLatLng().lat, sourceMarker.getLatLng().lng],
+                    [targetMarker.getLatLng().lat, targetMarker.getLatLng().lng]
+                ], { color: 'red' }).addTo(map);
+            }
+        }
+
+        map.on('click', onMapClick);
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,45 @@
+﻿@model DefenceSimulator3.Models.Threat
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>הוסף איום</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="OriginId" class="control-label"></label>
+                <select asp-for="OriginId" class ="form-control" asp-items="ViewBag.OriginId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="Amount" class="control-label"></label>
+                <input asp-for="Amount" class="form-control" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                <select asp-for="Status" class="form-control" asp-items="ViewBag.EnumStatus"></select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WeaponId" class="control-label"></label>
+                <select asp-for="WeaponId" class ="form-control" asp-items="ViewBag.WeaponId"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="הוסף" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">חזרה לרשימת איומים</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

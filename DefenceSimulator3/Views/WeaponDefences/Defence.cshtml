@@ -1,0 +1,229 @@
+﻿@model IEnumerable<DefenceSimulator3.Models.WeaponDefence>
+@{
+    ViewData["Title"] = "Defence";
+}
+
+<h2>חדר מצב</h2>
+
+<div id="tableContainer">
+    <h3>איומים פעילים</h3>
+    <table id="queue1Table" class="table">
+        <thead>
+            <tr class="table-danger">
+                <th>מקום שיגור</th>
+                <th>זמן שיגור</th>
+                <th>זמן לפגיעה בשניות</th>
+                <th>סוג נשק</th>
+                <th>כמות טילים</th>
+                <th>כמות טילים שיורטו</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    
+    <br />
+    <div>
+    <h3>איומים שיורטו</h3>
+        <table id="queue2Table" class="table">
+        <thead>
+                <tr class="table-success">
+                <th>מקום שיגור</th>
+                <th>זמן שיגור</th>
+                <th>סוג נשק</th>
+                <th>כמות טילים</th>
+                <th>כמות טילים שיורטו</th>
+
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    </div>
+    <h3>איומים שפגעו</h3>
+    <table id="queue3Table" class="table">
+        <thead>
+            <tr class="table-info">
+                <th>מקום שיגור</th>
+                <th>זמן שיגור</th>
+                <th>סוג נשק</th>
+                <th>כמות טילים</th>
+                <th>כמות טילים שפגעו</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <div class="card-body">
+        <ul id="messagesList" class="list-unstyled"></ul>
+    </div>
+    <div>
+        <h3>תחמושת כיפת ברזל</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>כמות</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="DefenceAmount">
+                        @Html.DisplayFor(modelItem => modelItem.ToList()[0].Amount)
+                    </td>
+                </tr>
+            </tbody>
+            <button class="btn btn-primary" onclick="Intercepted()">שגר</button>
+    </div>
+    
+</div>
+
+    @section scripts {
+    <script src="~/lib/signalr/signalr.min.js"></script>
+    <script type="text/javascript">
+        const connection = new signalR.HubConnectionBuilder().withUrl("/IronDomeHub").build();
+
+
+        connection.on("UpdateTimerExplode", function (event1, event2) {
+                updateTableCell(event1, "timetoimpact", event2)
+            });
+            connection.on("ReceiveAmount", function (event) {
+                document.getElementById("DefenceAmount").innerHTML = `${event}`;
+            });
+        // קבלת הודעות מה-Hub
+        connection.on("BE_ReciveThreatsQueue", function (queue1) {
+            populateTable1(queue1, "#queue1Table");
+        });
+
+            connection.on("ReceiveQueueIntercepted", function (queue2) {
+            populateTable2(queue2, "#queue2Table");
+        });
+
+            connection.on("ReceiveQueueFail", function (queue3) {
+            populateTable3(queue3, "#queue3Table");
+        });
+
+        // התחלת החיבור ל-Hub
+        
+        connection.start()
+        .then(function () {
+        connection.invoke("SendInitialRequest")
+        }).catch(function (err) {
+        return console.error(err.toString());
+        });
+
+        // שליחת הודעה ל-Hub כאשר הכפתור נלחץ
+        
+
+        function Intercepted() {
+                console.log("1234")
+                connection.invoke("sendmissle").catch(function (err) {
+                 return console.error(err.toString());
+             });
+        }
+
+
+        function populateTable1(queue, tableId) {
+            const tableBody = document.querySelector(tableId + " tbody");
+            tableBody.innerHTML = ""; // Clear existing rows
+
+            queue.forEach(function (threat) {
+                const row = document.createElement("tr");
+                row.setAttribute("data-threat-id", threat.threatId); // Set a unique identifier for the row
+                row.innerHTML = `
+                        <td>${threat.origin ? threat.origin.name : ''}</td>
+                        <td>${threat.launchTime ? new Date(threat.launchTime).toLocaleString() : ''}</td>
+                        <td>${threat.timetoimpact ? threat.timetoimpact: ''}</td>
+                        <td>${threat.weapon ? threat.weapon.name : ''}</td>
+                        <td>${threat.amount}</td>
+                        <td>${threat.success ? threat.success : ''}</td>
+                    `;
+
+                tableBody.appendChild(row);
+            });
+        }
+            function populateTable2(queue, tableId) {
+                const tableBody = document.querySelector(tableId + " tbody");
+                tableBody.innerHTML = ""; // Clear existing rows
+
+                queue.forEach(function (threat) {
+                    const row = document.createElement("tr");
+                    row.setAttribute("data-threat-id", threat.threatId); // Set a unique identifier for the row
+                    row.innerHTML = `
+                                    <td>${threat.origin ? threat.origin.name : ''}</td>
+                                    <td>${threat.launchTime ? new Date(threat.launchTime).toLocaleString() : ''}</td>
+                                    <td>${threat.weapon ? threat.weapon.name : ''}</td>
+                                    <td>${threat.amount ? threat.amount : ''}</td>
+                                    <td>${threat.success ? threat.success : ''}</td>
+                                `;
+
+                    tableBody.appendChild(row);
+                });
+            }
+            function populateTable3(queue, tableId) {
+                const tableBody = document.querySelector(tableId + " tbody");
+                tableBody.innerHTML = ""; // Clear existing rows
+
+                queue.forEach(function (threat) {
+                    const row = document.createElement("tr");
+                    row.setAttribute("data-threat-id", threat.threatId); // Set a unique identifier for the row
+                    row.innerHTML = `
+                           <td>${threat.origin ? threat.origin.name : ''}</td>
+                           <td>${threat.launchTime ? new Date(threat.launchTime).toLocaleString() : ''}</td>
+                           <td>${threat.weapon ? threat.weapon.name : ''}</td>
+                           <td>${threat.amount ? threat.amount : ''}</td>
+                           <td>${threat.fail ? threat.fail : ''}</td>
+                          `;
+
+                    tableBody.appendChild(row);
+                });
+            }
+            function updateTableCell(threatId, columnName, newValue) {
+                // Find the row by the unique threatId
+                console.log("lllll")
+                const row = document.querySelector(`tr[data-threat-id="${threatId}"]`);
+                if (row) {
+                    // Find the specific cell to update based on the column name or index
+                    let cell;
+                    switch (columnName) {
+                        case "origin":
+                            cell = row.cells[0]; // First cell (index 0)
+                            break;
+                        case "launchTime":
+                            cell = row.cells[1]; // Second cell (index 1)
+                            break;
+                        case "timetoimpact":
+                            cell = row.cells[2]; // Third cell (index 2)
+                            break;
+                        case "weapon":
+                            cell = row.cells[3]; // Fourth cell (index 3)
+                            break;
+                        case "amount":
+                            cell = row.cells[4]; // Fifth cell (index 4)
+                            break;
+                        default:
+                            console.error("Invalid column name provided");
+                            return;
+                    }
+                    // Update the cell content
+                    cell.textContent = newValue;
+                    connection.invoke("TimeToImpact", threatId, cell.textContent)
+                    if (cell.textContent == 0) {
+                        connection.invoke("FailAttack", threatId)
+                        triggerBoom()
+                    }
+
+
+                
+
+                    
+                }
+            }
+
+            // Example usage when receiving data from SignalR
+            connection.on("UpdateThreat", function (threatId, columnName, newValue) {
+                updateTableCell(threatId, columnName, newValue);
+            });
+
+    </script>
+}
+

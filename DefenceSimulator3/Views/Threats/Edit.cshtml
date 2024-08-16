@@ -1,0 +1,64 @@
+﻿@model DefenceSimulator3.Models.Threat
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Threat</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ThreatId" />
+            <div class="form-group">
+                <label asp-for="OriginId" class="control-label"></label>
+                <select asp-for="OriginId" class="form-control" asp-items="ViewBag.OriginId"></select>
+                <span asp-validation-for="OriginId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LaunchTime" class="control-label"></label>
+                <input asp-for="LaunchTime" class="form-control" />
+                <span asp-validation-for="LaunchTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Amount" class="control-label"></label>
+                <input asp-for="Amount" class="form-control" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Success" class="control-label"></label>
+                <input asp-for="Success" class="form-control" />
+                <span asp-validation-for="Success" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Fail" class="control-label"></label>
+                <input asp-for="Fail" class="form-control" />
+                <span asp-validation-for="Fail" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                <select asp-for="Status" class="form-control"></select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="WeaponId" class="control-label"></label>
+                <select asp-for="WeaponId" class="form-control" asp-items="ViewBag.WeaponId"></select>
+                <span asp-validation-for="WeaponId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
